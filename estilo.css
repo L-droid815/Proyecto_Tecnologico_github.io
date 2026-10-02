@@ -1,0 +1,459 @@
+/* ==========================================================================
+   1. ESTILOS GENERALES Y RESETS
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #f4f7f6;
+  color: #333;
+  min-height: 100vh;
+}
+
+.oculto {
+  display: none !important;
+}
+
+/* ==========================================================================
+   2. PANTALLA DE AUTENTICACIÓN
+   ========================================================================== */
+.contenedor-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  padding: 20px;
+}
+
+.tarjeta-login {
+  background: #ffffff;
+  padding: 35px 40px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  width: 100%;
+  max-width: 440px;
+}
+
+.tarjeta-login h2 {
+  margin-bottom: 6px;
+  color: #1e3c72;
+  text-align: center;
+}
+
+.tarjeta-login .subtitulo {
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.grupo-input {
+  margin-bottom: 14px;
+}
+
+.grupo-input label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.grupo-input input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.btn-login {
+  width: 100%;
+  padding: 12px;
+  background-color: #1e3c72;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 5px;
+}
+
+.btn-login:hover {
+  background-color: #2a5298;
+}
+
+.enlaces-auth {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.enlaces-auth a {
+  color: #1e3c72;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.enlaces-auth a:hover {
+  text-decoration: underline;
+}
+
+.mensaje-error {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.mensaje-exito {
+  color: #27ae60;
+  font-size: 13px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   3. SISTEMA PRINCIPAL Y CABECERA
+   ========================================================================== */
+.barra-superior {
+  background-color: #1e3c72;
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.subtitulo-header {
+  font-size: 13px;
+  color: #d1d8e0;
+  margin-top: 4px;
+}
+
+.acciones-header {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-secundario {
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-logout {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.tarjeta-sistema {
+  background: white;
+  margin: 20px 30px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ==========================================================================
+   4. CONTROL DE ESTUDIO (PANEL ADMINISTRATIVO)
+   ========================================================================== */
+#panel-control-estudio {
+  border-left: 6px solid #f1c40f;
+  background: #fffdf5;
+}
+
+.encabezado-ce {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.badge-admin {
+  background-color: #f1c40f;
+  color: #7f6000;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.grid-ce {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.bloque-ce {
+  background: #ffffff;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.bloque-ce h3 {
+  font-size: 15px;
+  margin-bottom: 10px;
+  color: #1e3c72;
+}
+
+.tabla-scroll {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tabla-mini {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.tabla-mini th, .tabla-mini td {
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: left;
+}
+
+.tabla-mini th {
+  background-color: #f5f5f5;
+}
+
+.btn-aprobar {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.btn-rechazar {
+  background-color: #c0392b;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   5. MÓDULOS DE REGISTRO Y TABLA DE ASISTENCIA
+   ========================================================================== */
+.grid-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.btn-agregar-estudiante {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.contenedor-acciones-extra {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 12px;
+}
+
+.btn-accion {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-pasar { background-color: #8e44ad; }
+.btn-cambiar { background-color: #d35400; }
+
+.contenedor-buscador {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f9f9f9;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.lbl-buscar {
+  font-weight: bold;
+  font-size: 14px;
+  color: #1e3c72;
+}
+
+#input-buscar {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.encabezado-tabla {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.btn-imprimir {
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.contenedor-tabla {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tabla-asistencia {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-asistencia th, .tabla-asistencia td {
+  border: 1px solid #ddd;
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.tabla-asistencia th {
+  background-color: #f2f2f2;
+  white-space: nowrap;
+}
+
+.input-cedula-edit {
+  width: 120px;
+  padding: 4px;
+  border: 1px solid #3498db;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.btn-eliminar {
+  background-color: #c0392b;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.sin-resultados {
+  font-weight: bold;
+  color: #c0392b;
+  padding: 15px !important;
+}
+
+/* ==========================================================================
+   6. IMPRESIÓN Y RESPONSIVE
+   ========================================================================== */
+@media print {
+  @page { size: A4 landscape; margin: 0.5cm; }
+  .barra-superior, #panel-control-estudio, #pantalla-registro, .btn-imprimir, .col-acciones, .btn-eliminar, .contenedor-buscador {
+    display: none !important;
+  }
+  body { background: white !important; }
+  .tarjeta-sistema { box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+  .tabla-asistencia th, .tabla-asistencia td { border: 1px solid #000 !important; font-size: 7pt !important; }
+}
+
+/* ==========================================================================
+   7. SELECTOR Y CELDAS DE ASISTENCIA INTERACTIVAS
+   ========================================================================== */
+.selector-asistencia-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #fff;
+  padding: 12px 20px;
+  border-radius: 6px;
+  border: 1px solid #dcdde1;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.selector-asistencia-container label {
+  font-weight: bold;
+  color: #1e3c72;
+}
+
+.selector-asistencia-container select {
+  padding: 8px 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+  outline: none;
+}
+
+.celda-asistencia {
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  text-align: center;
+  transition: background-color 0.2s, transform 0.1s;
+  user-select: none;
+}
+
+.celda-asistencia:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+/* Colores de asistencia solicitados */
+.asistencia-vacio {
+  background-color: #ffffff;
+}
+
+.asistencia-verde {
+  background-color: #27ae60 !important; /* Asistente */
+}
+
+.asistencia-rojo {
+  background-color: #c0392b !important; /* Inasistente */
+}
+
+.asistencia-morado {
+  background-color: #8e44ad !important; /* Ausente (Justificado/Permiso) */
+}
