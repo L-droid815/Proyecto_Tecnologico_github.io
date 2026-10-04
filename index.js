@@ -643,3 +643,9 @@ window.eliminarEstudiante = function(id) {
     renderizarTabla(document.getElementById("input-buscar").value);
   }
 };
+
+function marcarAsistencia(celda) {
+  // ... (todo el código que ya tienes para cambiar el color de la asistencia) ...
+
+  guardarDatos(); // <-- COLÓCALO AQUÍ AL FINAL
+}
