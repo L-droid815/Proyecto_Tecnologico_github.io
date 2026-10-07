@@ -187,7 +187,103 @@ const estudiantesIniciales = [
   { id: 83, cedula: "V-36965689", nombre: "Joseliandrys Del Valle Almea Mata", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
 
   { id: 84, cedula: "V-11120160984", nombre: "Reyber Alejandro Rojas Leon", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  
+
+  { id: 85, cedula: "V-34023375", nombre: "Leisly Desire Velasquez Perez", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 86, cedula: "V-34141266", nombre: "Cleudomal Jose Guariguata Davalillo", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
+
+  { id: 87, cedula: "V-34196928", nombre: "Frederick Gabriel Marcano Jaimez", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
+
+  { id: 88, cedula: "V-34561305", nombre: "Andreilys Elizabeth Nolasco Bonaldy", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 89, cedula: "V-34778147", nombre: "Erick John Jaime Gonzalez", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
+
+  { id: 90, cedula: "V-34905697", nombre: "Ashley Sophia Obdola Naranjo", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 91, cedula: "V-36018351", nombre: "Fabian Alejandro Hernandez Martinez", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
+
+  { id: 92, cedula: "V-36145249", nombre: "William Jose Rojas Danzer", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
+
+  { id: 93, cedula: "V-36153186", nombre: "Jesseannys Gabriela Diaz Moreno", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 94, cedula: "V-36565395", nombre: "Roxana Valentina Pacheco Palomo", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 95, cedula: "V-37132564", nombre: "Camilo Eduardo Araque Herrera", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
+
+  { id: 96, cedula: "V-37507591", nombre: "Mary Alejandra Carrero Diaz", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 97, cedula: "V-11115335862", nombre: "Anthonella Jonielys Flores Giralda", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 98, cedula: "V-11218073541", nombre: "Kleviannys Avila Palomares Martinez", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 99, cedula: "V-11219859622", nombre: "Michell Liliannys Meza Leon", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 100, cedula: "V-11221096890", nombre: "Josman Octavio Bermudez Acosta", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
+
+  { id: 101, cedula: "V-11221385005", nombre: "Kamila Sofia Olivares Guerras", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 102, cedula: "V-11320160059", nombre: "Jhade Danilys Milanos Diaz", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
+
+  { id: 103, cedula: "V-33729393", nombre: "Ivana Jeanaly Jimenez Purgarita", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 104, cedula: "V-33941112", nombre: "Rene Alejandro Delgado Pinto", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 105, cedula: "V-33949632", nombre: "Jose Alejandro Correa Martinez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 106, cedula: "V-34023386", nombre: "Darignis Carixa Marcano Hernandez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 107, cedula: "V-34023390", nombre: "Natasha Ashleannys Del Valle", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 108, cedula: "V-34029368", nombre: "Alejandro Josue Carrion Bolaños", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 109, cedula: "V-34029377", nombre: "Gabriela Alexandra Herrera Ramirez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 110, cedula: "V-34029384", nombre: "Lisyeli Eluney Brito Morillo", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 111, cedula: "V-34036725", nombre: "Dionnys Emiliano Salguera Prada", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 112, cedula: "V-34056469", nombre: "Jessi Del Jesus Carrasquel Berra", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 113, cedula: "V-34056487", nombre: "Mayha Victoria Lopez Ramirez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 114, cedula: "V-34056489", nombre: "Jean Franco Reyes Malpica", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 115, cedula: "V-34070313", nombre: "Jesus Manuel Pacheco Palomo", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 116, cedula: "V-34070345", nombre: "Lucio Jonas Medina Muñoz", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 117, cedula: "V-34112968", nombre: "Anthony Davier Robles Quintero", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 118, cedula: "V-34127348", nombre: "Yadmerys Celiannys Mata Benavides", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 119, cedula: "V-34149656", nombre: "Carlos Beltran Vasquez Gonzalez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 120, cedula: "V-34189234", nombre: "Aida Rosangela Malave Gonzalez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 121, cedula: "V-34207682", nombre: "Yorger Jose Martinez Rodriguez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 122, cedula: "V-34211059", nombre: "Gabriel Emilio Gomez Jimenez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 123, cedula: "V-34211065", nombre: "Bibiannys Del Jesus Brito Gutierrez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 124, cedula: "V-34474299", nombre: "Miguel Henrique Estaba Figuera", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 125, cedula: "V-34593527", nombre: "Josue David Rivera Romero", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 126, cedula: "V-34601810", nombre: "Daniel Antonio Rivero Gomez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 127, cedula: "V-34650113", nombre: "Jesus Antonio Silva Lopez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 128, cedula: "V-34852479", nombre: "Yoselin Anahelys Heredia Valenzuela", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 129, cedula: "V-35151722", nombre: "Emiliano Rafael Zambrano Celis", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
+  { id: 130, cedula: "V-11116215202", nombre: "Litjania De Los Angeles Gonzalez Sarabia", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 131, cedula: "V-11125672992", nombre: "Jexulys Ariannys Fernandez Perez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
+
+  { id: 132, cedula: "V-11221082784", nombre: "Sebastian Jose Moreno Mendoza", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
+
 ];
 
 // Persistencia en LocalStorage
