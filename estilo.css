@@ -389,13 +389,57 @@ body {
    6. IMPRESIÓN Y RESPONSIVE
    ========================================================================== */
 @media print {
-  @page { size: A4 landscape; margin: 0.5cm; }
-  .barra-superior, #panel-control-estudio, #pantalla-registro, .btn-imprimir, .col-acciones, .btn-eliminar, .contenedor-buscador {
+  @page { 
+    size: A4 landscape; 
+    margin: 0.5cm; 
+  }
+  
+  /* Ocultar elementos de la interfaz que no deben ir en la hoja impresa */
+  .barra-superior, 
+  #panel-control-estudio, 
+  #pantalla-registro, 
+  .btn-imprimir, 
+  .col-acciones, 
+  .btn-eliminar, 
+  .contenedor-buscador, 
+  .selector-asistencia-container {
     display: none !important;
   }
-  body { background: white !important; }
-  .tarjeta-sistema { box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
-  .tabla-asistencia th, .tabla-asistencia td { border: 1px solid #000 !important; font-size: 7pt !important; }
+  
+  body { 
+    background: white !important; 
+  }
+  
+  .tarjeta-sistema { 
+    box-shadow: none !important; 
+    margin: 0 !important; 
+    padding: 0 !important; 
+  }
+
+  /* Ajuste de la tabla completa de asistencia */
+  .tabla-asistencia th, 
+  .tabla-asistencia td { 
+    border: 1px solid #000 !important; 
+    font-size: 7pt !important; 
+  }
+
+  /* FORZAR IMPRESIÓN DE COLORES EN LAS CASILLAS DE ASISTENCIA */
+  .celda-asistencia {
+    -webkit-print-color-adjust: exact !important; /* Para Chrome, Safari, Edge */
+    print-color-adjust: exact !important;         /* Estándar CSS */
+  }
+
+  .asistencia-verde {
+    background-color: #27ae60 !important;
+  }
+
+  .asistencia-rojo {
+    background-color: #c0392b !important;
+  }
+
+  .asistencia-morado {
+    background-color: #8e44ad !important;
+  }
 }
 
 /* ==========================================================================
