@@ -627,12 +627,14 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const nombre = document.getElementById("nombre").value.trim();
     const cedula = document.getElementById("cedula").value.trim();
+    const genero = document.getElementById("genero").value;
     const seccion = document.getElementById("seccion").value.trim();
 
     estudiantes.push({
       id: Date.now(),
       cedula,
       nombre,
+      genero,
       seccion,
       asistencias: {}
     });
@@ -641,59 +643,6 @@ document.addEventListener("DOMContentLoaded", () => {
     registroEstudianteForm.reset();
     renderizarTabla(inputBuscar.value);
   });
-
-  inputBuscar.addEventListener("input", () => {
-    renderizarTabla(inputBuscar.value);
-  });
-
-  btnPasarAno.addEventListener("click", () => {
-    const secciones = [...new Set(estudiantes.map(e => e.seccion))];
-    if (secciones.length === 0) return alert("No hay secciones.");
-
-    const seccionElegida = prompt(`¿De cuál sección desea pasar estudiantes de año?\nSecciones:\n- ${secciones.join("\n- ")}`);
-    if (!seccionElegida) return;
-
-    const listaSeccion = estudiantes.filter(e => e.seccion.toLowerCase() === seccionElegida.trim().toLowerCase());
-    if (listaSeccion.length === 0) return alert("Sin estudiantes en esa sección.");
-
-    const nuevoAnoGlobal = prompt("Ingrese la NUEVA sección/año asignada:");
-    if (!nuevoAnoGlobal) return;
-
-    listaSeccion.forEach(est => {
-      est.seccion = nuevoAnoGlobal;
-    });
-
-    guardarEstudiantes();
-    renderizarTabla(inputBuscar.value);
-    alert("Estudiantes actualizados de año exitosamente.");
-  });
-
-  btnCambiarSeccion.addEventListener("click", () => {
-    const secciones = [...new Set(estudiantes.map(e => e.seccion))];
-    if (secciones.length === 0) return alert("No hay secciones.");
-
-    const seccionOrigen = prompt(`Sección actual a modificar:\n- ${secciones.join("\n- ")}`);
-    if (!seccionOrigen) return;
-
-    const listaSeccion = estudiantes.filter(e => e.seccion.toLowerCase() === seccionOrigen.trim().toLowerCase());
-    if (listaSeccion.length === 0) return alert("Sin resultados.");
-
-    const nuevaSec = prompt("Nueva Sección para estos estudiantes:");
-    if (!nuevaSec) return;
-
-    listaSeccion.forEach(est => {
-      est.seccion = nuevaSec;
-    });
-
-    guardarEstudiantes();
-    renderizarTabla(inputBuscar.value);
-    alert("Sección cambiada exitosamente.");
-  });
-
-  btnImprimir.addEventListener("click", () => {
-    window.print();
-  });
-});
 
 // ==========================================================================
 // 6. SELECTOR DE ASISTENCIA Y RENDERIZADO DE CELDAS CON COLORES
@@ -717,7 +666,7 @@ function insertarSelectorAsistenciaUI() {
   contenedorBuscador.parentNode.insertBefore(divSelector, contenedorBuscador.nextSibling);
 }
 
-function renderizarTabla(filtro = "") {
+  function renderizarTabla(filtro = "") {
   const tbody = document.getElementById("tabla-cuerpo");
   tbody.innerHTML = "";
 
@@ -737,7 +686,6 @@ function renderizarTabla(filtro = "") {
   estudiantesFiltrados.forEach((est, index) => {
     const tr = document.createElement("tr");
 
-    // Asegurar estructura de asistencias si no existe
     if (!est.asistencias) est.asistencias = {};
 
     let casillasHTML = "";
@@ -752,7 +700,13 @@ function renderizarTabla(filtro = "") {
         <input type="text" class="input-cedula-edit" value="${est.cedula}" onchange="actualizarCedula(${est.id}, this.value)">
       </td>
       <td>${est.nombre}</td>
-      <td>${est.genero || 'N/D'}</td>
+      <td>
+        <select class="input-cedula-edit" onchange="actualizarGenero(${est.id}, this.value)">
+          <option value="Masculino" ${est.genero === 'Masculino' ? 'selected' : ''}>Masculino</option>
+          <option value="Femenino" ${est.genero === 'Femenino' ? 'selected' : ''}>Femenino</option>
+          <option value="N/D" ${!est.genero || est.genero === 'N/D' ? 'selected' : ''}>N/D</option>
+        </select>
+      </td>
       <td>${est.seccion}</td>
       ${casillasHTML}
       <td class="col-acciones">
@@ -787,8 +741,6 @@ window.marcarAsistencia = function(celda) {
     estudiante.asistencias[casillaIndex] = colorSeleccionado;
     celda.className = `celda-asistencia asistencia-${colorSeleccionado}`;
   }
-
-  // Guardar automáticamente en LocalStorage
   guardarEstudiantes();
 };
 
@@ -813,4 +765,13 @@ window.eliminarEstudiante = function(id) {
 function marcarAsistencia(celda) {
 
   guardarDatos();
-}
+}}
+)
+
+window.actualizarGenero = function(id, nuevoGenero) {
+  const estudiante = estudiantes.find(e => e.id === id);
+  if (estudiante) {
+    estudiante.genero = nuevoGenero;
+    guardarEstudiantes();
+  }
+};
