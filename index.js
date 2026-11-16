@@ -381,7 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnPasarAno.addEventListener("click", () => {
       const confirmacion = confirm(
         "¿Está seguro de que desea promover a TODOS los estudiantes al siguiente año escolar?\n\n" +
-        "Nota: Los estudiantes de 5to año permanecerán en su nivel o deberán actualizarse manualmente."
+        "Nota: Los estudiantes de 5to año actual no estaran más o deberán actualizarse manualmente."
       );
 
       if (!confirmacion) return;
