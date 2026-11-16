@@ -7,7 +7,7 @@ const usuariosIniciales = [
     id: 1,
     usuario: "control de estudio",
     password: "ColegioSimonBolivar",
-    nombre: "control de estudio",
+    nombre: "Control de Estudio",
     cedula: "V-00000000",
     rol: "control_estudio",
     materia: "Administración / Dirección",
@@ -174,6 +174,7 @@ function guardarEstudiantes() {
 document.addEventListener("DOMContentLoaded", () => {
   const pantallaLogin = document.getElementById("pantalla-login");
   const sistemaPrincipal = document.getElementById("sistema-principal");
+  const panelControlEstudio = document.getElementById("panel-control-estudio");
   const loginForm = document.getElementById("login-form");
   const recuperarForm = document.getElementById("recuperar-form");
   const cambiarPassForm = document.getElementById("cambiar-pass-form");
@@ -187,6 +188,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const registroEstudianteForm = document.getElementById("registro-estudiante-form");
   const inputBuscar = document.getElementById("input-buscar");
   const btnImprimir = document.getElementById("btn-imprimir-main");
+
+  const btnPasarAno = document.getElementById("btn-pasar-ano");
+  const btnCambiarSeccion = document.getElementById("btn-cambiar-seccion");
 
   insertarSelectorAsistenciaUI();
 
@@ -230,7 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==========================================================================
-  // 3. LOGICA DE AUTENTICACIÓN
+  // 3. LÓGICA DE AUTENTICACIÓN
   // ==========================================================================
 
   loginForm.addEventListener("submit", (e) => {
@@ -261,6 +265,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function iniciarSesionSistema() {
     pantallaLogin.classList.add("oculto");
     sistemaPrincipal.classList.remove("oculto");
+
+    if (usuarioAutenticado && usuarioAutenticado.rol === "control_estudio") {
+      panelControlEstudio.classList.remove("oculto");
+    } else {
+      panelControlEstudio.classList.add("oculto");
+    }
 
     infoSesionUsuario.textContent = `Sesión activa: ${usuarioAutenticado.nombre}`;
     renderizarTabla();
@@ -331,7 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==========================================================================
-  // 4. GESTIÓN DE ESTUDIANTES Y ASISTENCIA
+  // 4. GESTIÓN DE ESTUDIANTES Y ACCIONES MASIVAS / INDIVIDUALES
   // ==========================================================================
 
   registroEstudianteForm.addEventListener("submit", (e) => {
@@ -358,6 +368,73 @@ document.addEventListener("DOMContentLoaded", () => {
   inputBuscar.addEventListener("input", (e) => {
     renderizarTabla(e.target.value);
   });
+
+  // BOTÓN: PASAR DE AÑO (TODOS LOS ESTUDIANTES - MASIVO)
+  if (btnPasarAno) {
+    const mapaAnos = {
+      "primer año": "Segundo año",
+      "segundo año": "Tercer año",
+      "tercer año": "Cuarto año",
+      "cuarto año": "Quinto año"
+    };
+
+    btnPasarAno.addEventListener("click", () => {
+      const confirmacion = confirm(
+        "¿Está seguro de que desea promover a TODOS los estudiantes al siguiente año escolar?\n\n" +
+        "Nota: Los estudiantes de 5to año permanecerán en su nivel o deberán actualizarse manualmente."
+      );
+
+      if (!confirmacion) return;
+
+      let promovidos = 0;
+
+      estudiantes.forEach(estudiante => {
+        for (const [actual, siguiente] of Object.entries(mapaAnos)) {
+          if (estudiante.seccion.toLowerCase().startsWith(actual)) {
+            const expresion = new RegExp(actual, "i");
+            estudiante.seccion = estudiante.seccion.replace(expresion, siguiente);
+            estudiante.asistencias = {};
+            promovidos++;
+            break;
+          }
+        }
+      });
+
+      if (promovidos > 0) {
+        guardarEstudiantes();
+        renderizarTabla(inputBuscar.value);
+        alert(`¡Proceso completado! Se han promovido ${promovidos} estudiante(s) al siguiente año escolar.`);
+      } else {
+        alert("No se encontraron estudiantes para promover o todos ya se encuentran en el último año.");
+      }
+    });
+  }
+
+  // BOTÓN: CAMBIAR DE SECCIÓN (INDIVIDUAL CON NOMBRE, APELLIDO Y GÉNERO)
+  if (btnCambiarSeccion) {
+    btnCambiarSeccion.addEventListener("click", () => {
+      const busqueda = prompt("Ingrese la CÉDULA o el NOMBRE del estudiante a cambiar de sección:");
+      if (!busqueda) return;
+
+      const estudiante = estudiantes.find(e => 
+        e.cedula.toLowerCase().trim() === busqueda.toLowerCase().trim() ||
+        e.nombre.toLowerCase().trim().includes(busqueda.toLowerCase().trim())
+      );
+
+      if (!estudiante) {
+        alert("No se encontró ningún estudiante con ese nombre o cédula.");
+        return;
+      }
+
+      const nuevaSeccion = prompt(`Estudiante: ${estudiante.nombre}\nGénero: ${estudiante.genero}\nSección actual: ${estudiante.seccion}\n\nIngrese la NUEVA sección (Ej. Primer año seccion B):`);
+      if (!nuevaSeccion) return;
+
+      estudiante.seccion = nuevaSeccion.trim();
+      guardarEstudiantes();
+      renderizarTabla(inputBuscar.value);
+      alert(`La sección de ${estudiante.nombre} fue actualizada exitosamente a: ${estudiante.seccion}`);
+    });
+  }
 });
 
 // ==========================================================================
