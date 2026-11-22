@@ -101,6 +101,138 @@ function actualizarUsuarioYPassword({ nuevoUsuario, passwordActual, passwordNuev
   });
 }
 
+const COLORES_SECCION = [
+  "seccion-color-0",
+  "seccion-color-1",
+  "seccion-color-2",
+  "seccion-color-3",
+  "seccion-color-4",
+  "seccion-color-5",
+];
+
+function obtenerClaseColorSeccion(nombreSeccion) {
+  const texto = String(nombreSeccion || "General").trim();
+  let hash = 0;
+  for (let i = 0; i < texto.length; i++) {
+    hash = (hash * 31 + texto.charCodeAt(i)) >>> 0;
+  }
+  return COLORES_SECCION[hash % COLORES_SECCION.length];
+}
+
+function normalizarColorAsistencia(valor) {
+  const v = String(valor || "").trim().toLowerCase();
+  if (v === "verde" || v === "asistente" || v === "p") return "verde";
+  if (v === "rojo" || v === "inasistente" || v === "i") return "rojo";
+  if (v === "morado" || v === "ausente" || v === "a") return "morado";
+  return "";
+}
+
+function obtenerClaseEstadoAsistencia(valor) {
+  const color = normalizarColorAsistencia(valor);
+  if (color === "verde") return "estado-verde";
+  if (color === "rojo") return "estado-rojo";
+  if (color === "morado") return "estado-morado";
+  return "";
+}
+
+function renderizarCasillasAsistenciaColores(estudiante, totalDias = 60) {
+  const cont = document.querySelector("#contenedor-asistencia");
+  if (!cont || !estudiante) return;
+
+  const marcas = estudiante.asistencias || {};
+  const claseSec = obtenerClaseColorSeccion(estudiante.seccion);
+
+  let html = `
+    <div class="cabecera-asistencia">
+      <strong>${escaparHtml(estudiante.nombre_completo)}</strong>
+      <span>Cédula: ${escaparHtml(estudiante.cedula)}</span>
+      <span class="seccion-badge ${claseSec}">${escaparHtml(estudiante.seccion)}</span>
+    </div>
+    <p class="texto-ayuda">
+      Significado: <strong>Verde</strong> = Asistente · <strong>Rojo</strong> = Inasistente · <strong>Morado</strong> = Ausente
+    </p>
+    <div class="casillas-grid">
+  `;
+
+  for (let dia = 1; dia <= totalDias; dia++) {
+    const clave = `dia_${dia}`;
+    const colorActual = normalizarColorAsistencia(marcas[clave]);
+    const claseEstado = obtenerClaseEstadoAsistencia(colorActual);
+
+    html += `
+      <button
+        type="button"
+        class="casilla-dia ${claseEstado}"
+        data-estudiante-id="${estudiante.id}"
+        data-clave="${clave}"
+        data-dia="${dia}"
+        data-color="${colorActual}"
+      >
+        <span>Día ${dia}</span>
+        <small>${colorActual ? colorActual.toUpperCase() : "-"}</small>
+      </button>
+    `;
+  }
+
+  html += `</div>`;
+  cont.innerHTML = html;
+}
+
+async function manejarClicCasillaConAlert(botonCasilla) {
+  const id = Number(botonCasilla.dataset.estudianteId);
+  const clave = botonCasilla.dataset.clave;
+  const dia = botonCasilla.dataset.dia;
+  const est = listaEstudiantes.find((item) => Number(item.id) === id);
+  if (!est || !clave) return;
+
+  alert(
+    `Día ${dia} — ${est.nombre_completo}\n\n` +
+      "Escoge el color según el significado:\n" +
+      "• VERDE = Asistente\n" +
+      "• ROJO = Inasistente\n" +
+      "• MORADO = Ausente\n\n" +
+      "A continuación escribe el color (verde, rojo o morado). Si escribes 'limpiar', se borra el día."
+  );
+
+  const respuesta = prompt(
+    `Escribe el color para el Día ${dia} (verde = Asistente, rojo = Inasistente, morado = Ausente):`,
+    botonCasilla.dataset.color || "verde"
+  );
+
+  if (respuesta === null) return;
+
+  const texto = respuesta.trim().toLowerCase();
+  const nuevasAsistencias = { ...(est.asistencias || {}) };
+
+  if (texto === "limpiar" || texto === "borrar" || texto === "") {
+    delete nuevasAsistencias[clave];
+  } else {
+    const colorElegido = normalizarColorAsistencia(texto);
+    if (!colorElegido) {
+      alert("Color no válido. Escribe exactamente: verde, rojo o morado (o 'limpiar').");
+      return;
+    }
+    nuevasAsistencias[clave] = colorElegido;
+  }
+
+  botonCasilla.disabled = true;
+  try {
+    const guardadas = await apiGuardarAsistencia(id, nuevasAsistencias);
+    est.asistencias = guardadas;
+    renderizarCasillasAsistenciaColores(est);
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    botonCasilla.disabled = false;
+  }
+}
+
+document.querySelector("#contenedor-asistencia")?.addEventListener("click", async (e) => {
+  const btnCasilla = e.target.closest("button.casilla-dia");
+  if (!btnCasilla) return;
+  await manejarClicCasillaConAlert(btnCasilla);
+});
+
 // ============================================================================
 // CAPA HTTP / FETCH CON MANEJO SEGURO DE JSON
 // ============================================================================
