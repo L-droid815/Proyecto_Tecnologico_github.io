@@ -1,561 +1,586 @@
-// ==========================================================================
-// 1. BASE DE DATOS DE USUARIOS Y ESTUDIANTES
-// ==========================================================================
+// ============================================================================
+// CONFIGURACIÓN Y ENDPOINTS (XAMPP -> /opt/lampp/htdocs/asistencia/api/)
+// ============================================================================
+const API_ESTUDIANTES = "./api/estudiantes.php";
+const API_ASISTENCIA = "./api/asistencia.php";
 
-const usuariosIniciales = [
-  {
-    id: 1,
-    usuario: "control de estudio",
-    password: "ColegioSimonBolivar",
-    nombre: "Control de Estudio",
-    cedula: "V-00000000",
-    rol: "control_estudio",
-    materia: "Administración / Dirección",
-    estado: "activo"
+const STORAGE_CREDENCIALES = "csb_credenciales_v1";
+const STORAGE_SESION = "csb_sesion_activa_v1";
+
+const USUARIO_INICIAL = "control de estudio";
+const CLAVE_INICIAL = "ColegioSimonBolivar";
+
+let listaEstudiantes = [];
+let estudianteEnEdicionId = null;
+let estudianteSeleccionadoId = null;
+
+// ============================================================================
+// GESTIÓN DE USUARIO Y CONTRASEÑA (PERSISTENCIA LOCAL)
+// ============================================================================
+function asegurarCredencialesIniciales() {
+  const actuales = obtenerCredenciales();
+  if (!actuales) {
+    guardarCredenciales({
+      usuario: USUARIO_INICIAL,
+      password: CLAVE_INICIAL,
+    });
   }
-];
-
-const estudiantesIniciales = [
-  { id: 1, cedula: "V-34694229", nombre: "Maryoris Sarahi Portilla Soomai", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 2, cedula: "V-3482822", nombre: "Zahir Uziel Leon Salazar", seccion: "Primer año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 3, cedula: "V-34828931", nombre: "Howard Isaac Escalona Gonzalez", seccion: "Primer año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 4, cedula: "V-34855119", nombre: "Maria Valentina Romero Herrera", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 5, cedula: "V-34894853", nombre: "Abraham Josue Call Marcano", seccion: "Primer año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 6, cedula: "V-35009788", nombre: "Dhilan Jose Calderon Boyce", seccion: "Primer año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 7, cedula: "V-35039769", nombre: "Maria Fernanda Cedeño Cortez", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 8, cedula: "V-35093006", nombre: "Astin's Gabriel Muñoz Morales", seccion: "Primer año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 9, cedula: "V-35131815", nombre: "Keyler Daniel Wells Palomares", seccion: "Primer año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 10, cedula: "V-36230054", nombre: "Jacyel Walezka Bettermin Bolwine", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 11, cedula: "V-36237587", nombre: "Anthonella Juliett Ortega Bolwine", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 12, cedula: "V-36298646", nombre: "Kheilyn Alejandra Marquez Carreño", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 13, cedula: "V-36394939", nombre: "Adrian David Gutierrez Baeza", seccion: "Primer año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 14, cedula: "V-36396897", nombre: "Geimilys Karisbel Gascon Polo", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 15, cedula: "V-36765014", nombre: "Yeikert Alejandro Brito Valderrey", seccion: "Primer año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 16, cedula: "V-36765646", nombre: "Aletza Jiovanna Kochmansky Contreras", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 17, cedula: "V-36849555", nombre: "Mabel Paola Ramonys Jimenez", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 18, cedula: "V-36940752", nombre: "Jorgelis Valentina Rodriguez Palomo", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 19, cedula: "V-37044134", nombre: "Marianela Jose Davalillo Leon", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 20, cedula: "V-37341117", nombre: "Eudismarys Esther Mata Palomares", seccion: "Primer año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 21, cedula: "V-37460645", nombre: "Aroon Sebastian Guevara Ramirez", seccion: "Primer año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 22, cedula: "V-33866403", nombre: "Nicolas Alberto Salazar Rondon", seccion: "Primer año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 23, cedula: "V-34794396", nombre: "Diosmar Alexander Arteaga Marcano", seccion: "Primer año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 24, cedula: "V-35020454", nombre: "Javierlys Josefina Salazar Mayo", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 25, cedula: "V-35084536", nombre: "Jhuliannys Eliamar Valentina", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 26, cedula: "V-35113889", nombre: "Williams Alberto Mendonza Marcano", seccion: "Primer año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 27, cedula: "V-35155676", nombre: "Jose Miguel Idrogo Moreno", seccion: "Primer año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 28, cedula: "V-36104817", nombre: "Robert Jose Rodriguez Brito", seccion: "Primer año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 29, cedula: "V-36203616", nombre: "Isaias Daniel Reyes Giovetti", seccion: "Primer año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 30, cedula: "V-36247886", nombre: "Yoimar Sofia Marcano Torres", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 31, cedula: "V-36249573", nombre: "Ronnibeth Sharlot Urquia Brito", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 32, cedula: "V-36251674", nombre: "Rogervis Nicoll Brito Brito", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 33, cedula: "V-36421276", nombre: "Miranda Edecia Colina Moya", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 34, cedula: "V-36432829", nombre: "Andreilismar Valentina Tocore Tocore", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 35, cedula: "V-36907540", nombre: "Yarley Carolina Zabala Diaz", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 36, cedula: "V-36959322", nombre: "Mauricio Javier Dominguez Rojas", seccion: "Primer año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 37, cedula: "V-37015246", nombre: "Rosibania Trudis Ivette Gonzalez Zapata", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 38, cedula: "V-37142192", nombre: "Anabella Sofia Leon Lima", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 39, cedula: "V-11318658489", nombre: "Jose Angel Urrieta Gonzalez", seccion: "Primer año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 40, cedula: "V-11324119398", nombre: "Nicole Gisell Lopez Martinez", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 41, cedula: "V-11325512624", nombre: "Angel Adrian Dimas Luces", seccion: "Primer año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 42, cedula: "V-11425125753", nombre: "Karlis Alejandra Ferman Rosquel", seccion: "Primer año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 43, cedula: "V-34780516", nombre: "Maria Fernanda Rodriguez Moreno", seccion: "Primer año seccion C", genero: "Femenino", asistencias: {} },
-  { id: 44, cedula: "V-34780553", nombre: "Jannelys Gabriela Lopez Perez", seccion: "Primer año seccion C", genero: "Femenino", asistencias: {} },
-  { id: 45, cedula: "V-36100826", nombre: "Henry Ramon Velasquez Perez", seccion: "Primer año seccion C", genero: "Masculino", asistencias: {} },
-  { id: 46, cedula: "V-36108035", nombre: "Isaac David Santoyo Danzer", seccion: "Primer año seccion C", genero: "Masculino", asistencias: {} },
-  { id: 47, cedula: "V-36606089", nombre: "Zulismar Gabriela Palomo Silva", seccion: "Primer año seccion C", genero: "Femenino", asistencias: {} },
-  { id: 48, cedula: "V-37556308", nombre: "Leoskarly Nikol Cabral Sarmiento", seccion: "Primer año seccion C", genero: "Femenino", asistencias: {} },
-  { id: 49, cedula: "V-11319858390", nombre: "Fabian Alejandro Frutille Baquero", seccion: "Primer año seccion C", genero: "Masculino", asistencias: {} },
-  { id: 50, cedula: "V-11321385005", nombre: "Samira Sthefania Olivares Gurra", seccion: "Primer año seccion C", genero: "Femenino", asistencias: {} },
-  { id: 51, cedula: "V-34154240", nombre: "Jasep Alcangel Idrogo Moreno", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 52, cedula: "V-34285119", nombre: "Jhonny Alejandro Rendayyo Montenegro", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 53, cedula: "V-34285130", nombre: "Melanis Anthonella Mata Farfan", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 54, cedula: "V-34296539", nombre: "Deixy Alejandra Urquia Bermudez", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 55, cedula: "V-34423362", nombre: "Orangel Jose Urrieta Gonzalez", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 56, cedula: "V-34423390", nombre: "Jhojan Orlando Albeiro Rodriguez Rodriguez", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 57, cedula: "V-34470400", nombre: "Querub Jocabeth Guzman Beria", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 58, cedula: "V-34470441", nombre: "Moises Samuel Valenzuela Casanova", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 59, cedula: "V-34474342", nombre: "Samme Del Jesus Gonzalez Celis", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 60, cedula: "V-34484470", nombre: "Randy Josue Jimenez Reyna", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 61, cedula: "V-34544429", nombre: "Dianlet Gabriela Rondon Wells", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 62, cedula: "V-34553656", nombre: "Robert Daniels Zambrano Baeza", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 63, cedula: "V-34692249", nombre: "Efranluis Jesus Silva Guzman", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 64, cedula: "V-34710852", nombre: "Belinda Johanna Verde Rodriguez", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 65, cedula: "V-34721159", nombre: "Jesus Santiago Velazquez Marcano", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 66, cedula: "V-34781031", nombre: "Jesuliangel Del Valle Carrion Zulueta", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 67, cedula: "V-34794381", nombre: "Ana Victoria Cedeño Zapata", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 68, cedula: "V-34858038", nombre: "Emily Cardona Lopez Romero", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 69, cedula: "V-34942003", nombre: "Luciano Jonas Medina Muñoz", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 70, cedula: "V-35000728", nombre: "Dariannys Sharaid Bolivar Rondon", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 71, cedula: "V-35039776", nombre: "Ana Cristina Bompart Figuera", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 72, cedula: "V-35131810", nombre: "Arianna Sophia Marcano Garrido", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 73, cedula: "V-35146248", nombre: "Chairitt Vanessa Figuera Robles", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 74, cedula: "V-35180052", nombre: "Dairismar Cirianny Gonzalez Serrano", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 75, cedula: "V-36129816", nombre: "Leonardo Elias Rodriguez Mendoza", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 76, cedula: "V-36180114", nombre: "Lisandrys Del Valle Colina Gomez", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 77, cedula: "V-36296168", nombre: "Sonismar Sofia Gomez Gonzalez", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 78, cedula: "V-36358208", nombre: "Greidys Victoria Calderon Flores", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 79, cedula: "V-36504998", nombre: "Pedro Jose Manuel Bermudez Rivero", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 80, cedula: "V-36531595", nombre: "Elias Gabriel Davalillo Rivero", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 81, cedula: "V-36550624", nombre: "Anthonella Giovanna Del Valle Avila Narvaez", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 82, cedula: "V-36638448", nombre: "Isaac Enrique Martinez Borrome", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 83, cedula: "V-36965689", nombre: "Joseliandrys Del Valle Almea Mata", seccion: "Segundo año seccion A", genero: "Femenino", asistencias: {} },
-  { id: 84, cedula: "V-11120160984", nombre: "Reyber Alejandro Rojas Leon", seccion: "Segundo año seccion A", genero: "Masculino", asistencias: {} },
-  { id: 85, cedula: "V-34023375", nombre: "Leisly Desire Velasquez Perez", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 86, cedula: "V-34141266", nombre: "Cleudomal Jose Guariguata Davalillo", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 87, cedula: "V-34196928", nombre: "Frederick Gabriel Marcano Jaimez", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 88, cedula: "V-34561305", nombre: "Andreilys Elizabeth Nolasco Bonaldy", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 89, cedula: "V-34778147", nombre: "Erick John Jaime Gonzalez", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 90, cedula: "V-34905697", nombre: "Ashley Sophia Obdola Naranjo", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 91, cedula: "V-36018351", nombre: "Fabian Alejandro Hernandez Martinez", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 92, cedula: "V-36145249", nombre: "William Jose Rojas Danzer", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 93, cedula: "V-36153186", nombre: "Jesseannys Gabriela Diaz Moreno", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 94, cedula: "V-36565395", nombre: "Roxana Valentina Pacheco Palomo", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 95, cedula: "V-37132564", nombre: "Camilo Eduardo Araque Herrera", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 96, cedula: "V-37507591", nombre: "Mary Alejandra Carrero Diaz", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 97, cedula: "V-11115335862", nombre: "Anthonella Jonielys Flores Giralda", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 98, cedula: "V-11218073541", nombre: "Kleviannys Avila Palomares Martinez", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 99, cedula: "V-11219859622", nombre: "Michell Liliannys Meza Leon", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 100, cedula: "V-11221096890", nombre: "Josman Octavio Bermudez Acosta", seccion: "Segundo año seccion B", genero: "Masculino", asistencias: {} },
-  { id: 101, cedula: "V-11221385005", nombre: "Kamila Sofia Olivares Guerras", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 102, cedula: "V-11320160059", nombre: "Jhade Danilys Milanos Diaz", seccion: "Segundo año seccion B", genero: "Femenino", asistencias: {} },
-  { id: 103, cedula: "V-33729393", nombre: "Ivana Jeanaly Jimenez Purgarita", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 104, cedula: "V-33941112", nombre: "Rene Alejandro Delgado Pinto", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 105, cedula: "V-33949632", nombre: "Jose Alejandro Correa Martinez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 106, cedula: "V-34023386", nombre: "Darignis Carixa Marcano Hernandez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 107, cedula: "V-34023390", nombre: "Natasha Ashleannys Del Valle", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 108, cedula: "V-34029368", nombre: "Alejandro Josue Carrion Bolaños", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 109, cedula: "V-34029377", nombre: "Gabriela Alexandra Herrera Ramirez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 110, cedula: "V-34029384", nombre: "Lisyeli Eluney Brito Morillo", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 111, cedula: "V-34036725", nombre: "Dionnys Emiliano Salguera Prada", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 112, cedula: "V-34056469", nombre: "Jessi Del Jesus Carrasquel Berra", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 113, cedula: "V-34056487", nombre: "Mayha Victoria Lopez Ramirez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 114, cedula: "V-34056489", nombre: "Jean Franco Reyes Malpica", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 115, cedula: "V-34070313", nombre: "Jesus Manuel Pacheco Palomo", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 116, cedula: "V-34070345", nombre: "Lucio Jonas Medina Muñoz", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 117, cedula: "V-34112968", nombre: "Anthony Davier Robles Quintero", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 118, cedula: "V-34127348", nombre: "Yadmerys Celiannys Mata Benavides", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 119, cedula: "V-34149656", nombre: "Carlos Beltran Vasquez Gonzalez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 120, cedula: "V-34189234", nombre: "Aida Rosangela Malave Gonzalez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 121, cedula: "V-34207682", nombre: "Yorger Jose Martinez Rodriguez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 122, cedula: "V-34211059", nombre: "Gabriel Emilio Gomez Jimenez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 123, cedula: "V-34211065", nombre: "Bibiannys Del Jesus Brito Gutierrez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 124, cedula: "V-34474299", nombre: "Miguel Henrique Estaba Figuera", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 125, cedula: "V-34593527", nombre: "Josue David Rivera Romero", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 126, cedula: "V-34601810", nombre: "Daniel Antonio Rivero Gomez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 127, cedula: "V-34650113", nombre: "Jesus Antonio Silva Lopez", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 128, cedula: "V-34852479", nombre: "Yoselin Anahelys Heredia Valenzuela", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 129, cedula: "V-35151722", nombre: "Emiliano Rafael Zambrano Celis", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} },
-  { id: 130, cedula: "V-11116215202", nombre: "Litjania De Los Angeles Gonzalez Sarabia", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 131, cedula: "V-11125672992", nombre: "Jexulys Ariannys Fernandez Perez", seccion: "Tercer año seccion U", genero: "Femenino", asistencias: {} },
-  { id: 132, cedula: "V-11221082784", nombre: "Sebastian Jose Moreno Mendoza", seccion: "Tercer año seccion U", genero: "Masculino", asistencias: {} }
-];
-
-let usuarios = JSON.parse(localStorage.getItem('usuarios_simonbolivar')) || usuariosIniciales;
-let solicitudesRecuperacion = JSON.parse(localStorage.getItem('solicitudes_recuperacion_sb')) || [];
-let estudiantes = JSON.parse(localStorage.getItem('registroEstudiantes')) || estudiantesIniciales;
-let usuarioAutenticado = null;
-
-function guardarUsuarios() {
-  localStorage.setItem('usuarios_simonbolivar', JSON.stringify(usuarios));
 }
 
-function guardarSolicitudesRecuperacion() {
-  localStorage.setItem('solicitudes_recuperacion_sb', JSON.stringify(solicitudesRecuperacion));
-}
-
-function guardarEstudiantes() {
-  localStorage.setItem('registroEstudiantes', JSON.stringify(estudiantes));
-}
-
-// ==========================================================================
-// 2. CONTROLADOR PRINCIPAL Y NAVEGACIÓN
-// ==========================================================================
-
-document.addEventListener("DOMContentLoaded", () => {
-  const pantallaLogin = document.getElementById("pantalla-login");
-  const sistemaPrincipal = document.getElementById("sistema-principal");
-  const panelControlEstudio = document.getElementById("panel-control-estudio");
-  const loginForm = document.getElementById("login-form");
-  const recuperarForm = document.getElementById("recuperar-form");
-  const cambiarPassForm = document.getElementById("cambiar-pass-form");
-
-  const linkOlvido = document.getElementById("link-olvido");
-  const linksVolver = document.querySelectorAll(".link-volver-login");
-  const btnAbrirCambioPass = document.getElementById("btn-abrir-cambio-pass");
-  const btnLogout = document.getElementById("btn-logout");
-
-  const infoSesionUsuario = document.getElementById("info-sesion-usuario");
-  const registroEstudianteForm = document.getElementById("registro-estudiante-form");
-  const inputBuscar = document.getElementById("input-buscar");
-  const btnImprimir = document.getElementById("btn-imprimir-main");
-
-  const btnPasarAno = document.getElementById("btn-pasar-ano");
-  const btnCambiarSeccion = document.getElementById("btn-cambiar-seccion");
-
-  insertarSelectorAsistenciaUI();
-
-  if (btnImprimir) {
-    btnImprimir.addEventListener("click", () => {
-      window.print();
-    });
-  }
-
-  function ocultarAuthForms() {
-    loginForm.classList.add("oculto");
-    recuperarForm.classList.add("oculto");
-    cambiarPassForm.classList.add("oculto");
-    limpiarMensajes();
-  }
-
-  function limpiarMensajes() {
-    document.querySelectorAll(".mensaje-error, .mensaje-exito").forEach(div => div.textContent = "");
-  }
-
-  linkOlvido.addEventListener("click", (e) => {
-    e.preventDefault();
-    ocultarAuthForms();
-    recuperarForm.classList.remove("oculto");
-  });
-
-  linksVolver.forEach(link => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      ocultarAuthForms();
-      loginForm.classList.remove("oculto");
-    });
-  });
-
-  btnAbrirCambioPass.addEventListener("click", () => {
-    sistemaPrincipal.classList.add("oculto");
-    pantallaLogin.classList.remove("oculto");
-    ocultarAuthForms();
-    cambiarPassForm.classList.remove("oculto");
-    document.getElementById("chg-usuario").value = usuarioAutenticado ? usuarioAutenticado.usuario : "";
-  });
-
-  // ==========================================================================
-  // 3. LÓGICA DE AUTENTICACIÓN
-  // ==========================================================================
-
-  loginForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const userInput = document.getElementById("usuario").value.trim().toLowerCase();
-    const passInput = document.getElementById("password").value.trim();
-    const errorDiv = document.getElementById("login-error");
-
-    const usuarioEncontrado = usuarios.find(u => 
-      (u.usuario.toLowerCase() === userInput || u.cedula.toLowerCase() === userInput) && 
-      u.password === passInput
-    );
-
-    if (!usuarioEncontrado) {
-      errorDiv.textContent = "Credenciales incorrectas o usuario no registrado.";
-      return;
-    }
-
-    if (usuarioEncontrado.estado === "bloqueado") {
-      errorDiv.textContent = "Su cuenta ha sido inhabilitada por Control de Estudio.";
-      return;
-    }
-
-    usuarioAutenticado = usuarioEncontrado;
-    iniciarSesionSistema();
-  });
-
-  function iniciarSesionSistema() {
-    pantallaLogin.classList.add("oculto");
-    sistemaPrincipal.classList.remove("oculto");
-
-    if (usuarioAutenticado && usuarioAutenticado.rol === "control_estudio") {
-      panelControlEstudio.classList.remove("oculto");
-    } else {
-      panelControlEstudio.classList.add("oculto");
-    }
-
-    infoSesionUsuario.textContent = `Sesión activa: ${usuarioAutenticado.nombre}`;
-    renderizarTabla();
-  }
-
-  btnLogout.addEventListener("click", () => {
-    usuarioAutenticado = null;
-    sistemaPrincipal.classList.add("oculto");
-    pantallaLogin.classList.remove("oculto");
-    ocultarAuthForms();
-    loginForm.classList.remove("oculto");
-    document.getElementById("usuario").value = "";
-    document.getElementById("password").value = "";
-  });
-
-  recuperarForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const userInput = document.getElementById("rec-usuario").value.trim().toLowerCase();
-    const errorDiv = document.getElementById("recuperar-error");
-    const exitoDiv = document.getElementById("recuperar-exito");
-
-    const usuarioExiste = usuarios.find(u => u.usuario.toLowerCase() === userInput || u.cedula.toLowerCase() === userInput);
-
-    if (!usuarioExiste) {
-      errorDiv.textContent = "No existe un usuario registrado con esos datos.";
-      return;
-    }
-
-    const yaSolicitado = solicitudesRecuperacion.some(s => s.usuarioId === usuarioExiste.id);
-    if (yaSolicitado) {
-      exitoDiv.textContent = "Ya existe una solicitud pendiente para este usuario.";
-      return;
-    }
-
-    solicitudesRecuperacion.push({
-      id: Date.now(),
-      usuarioId: usuarioExiste.id,
-      nombre: usuarioExiste.nombre,
-      cedula: usuarioExiste.cedula,
-      usuario: usuarioExiste.usuario
-    });
-    guardarSolicitudesRecuperacion();
-
-    recuperarForm.reset();
-    exitoDiv.textContent = "Solicitud enviada a Control de Estudio.";
-  });
-
-  cambiarPassForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const userInput = document.getElementById("chg-usuario").value.trim().toLowerCase();
-    const passActual = document.getElementById("chg-actual").value.trim();
-    const passNueva = document.getElementById("chg-nueva").value.trim();
-    const errorDiv = document.getElementById("cambiar-error");
-    const exitoDiv = document.getElementById("cambiar-exito");
-
-    const userObj = usuarios.find(u => u.usuario.toLowerCase() === userInput && u.password === passActual);
-
-    if (!userObj) {
-      errorDiv.textContent = "El usuario o la contraseña actual son incorrectos.";
-      return;
-    }
-
-    userObj.password = passNueva;
-    guardarUsuarios();
-
-    cambiarPassForm.reset();
-    exitoDiv.textContent = "Contraseña actualizada exitosamente.";
-  });
-
-  // ==========================================================================
-  // 4. GESTIÓN DE ESTUDIANTES Y ACCIONES MASIVAS / INDIVIDUALES
-  // ==========================================================================
-
-  registroEstudianteForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const nombre = document.getElementById("nombre").value.trim();
-    const cedula = document.getElementById("cedula").value.trim();
-    const genero = document.getElementById("genero").value;
-    const seccion = document.getElementById("seccion").value.trim();
-
-    estudiantes.push({
-      id: Date.now(),
-      cedula,
-      nombre,
-      genero,
-      seccion,
-      asistencias: {}
-    });
-
-    guardarEstudiantes();
-    registroEstudianteForm.reset();
-    renderizarTabla(inputBuscar.value);
-  });
-
-  inputBuscar.addEventListener("input", (e) => {
-    renderizarTabla(e.target.value);
-  });
-
-  // BOTÓN: PASAR DE AÑO (TODOS LOS ESTUDIANTES - MASIVO)
-  if (btnPasarAno) {
-    const mapaAnos = {
-      "primer año": "Segundo año",
-      "segundo año": "Tercer año",
-      "tercer año": "Cuarto año",
-      "cuarto año": "Quinto año"
+function obtenerCredenciales() {
+  try {
+    const raw = localStorage.getItem(STORAGE_CREDENCIALES);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== "object") return null;
+    return {
+      usuario: String(data.usuario || USUARIO_INICIAL).trim(),
+      password: String(data.password || CLAVE_INICIAL),
     };
-
-    btnPasarAno.addEventListener("click", () => {
-      const confirmacion = confirm(
-        "¿Está seguro de que desea promover a TODOS los estudiantes al siguiente año escolar?\n\n" +
-        "Nota: Los estudiantes de 5to año actual no estaran más o deberán actualizarse manualmente."
-      );
-
-      if (!confirmacion) return;
-
-      let promovidos = 0;
-
-      estudiantes.forEach(estudiante => {
-        for (const [actual, siguiente] of Object.entries(mapaAnos)) {
-          if (estudiante.seccion.toLowerCase().startsWith(actual)) {
-            const expresion = new RegExp(actual, "i");
-            estudiante.seccion = estudiante.seccion.replace(expresion, siguiente);
-            estudiante.asistencias = {};
-            promovidos++;
-            break;
-          }
-        }
-      });
-
-      if (promovidos > 0) {
-        guardarEstudiantes();
-        renderizarTabla(inputBuscar.value);
-        alert(`¡Proceso completado! Se han promovido ${promovidos} estudiante(s) al siguiente año escolar.`);
-      } else {
-        alert("No se encontraron estudiantes para promover o todos ya se encuentran en el último año.");
-      }
-    });
+  } catch {
+    return null;
   }
-
-  // BOTÓN: CAMBIAR DE SECCIÓN (INDIVIDUAL CON NOMBRE, APELLIDO Y GÉNERO)
-  if (btnCambiarSeccion) {
-    btnCambiarSeccion.addEventListener("click", () => {
-      const busqueda = prompt("Ingrese la CÉDULA o el NOMBRE del estudiante a cambiar de sección:");
-      if (!busqueda) return;
-
-      const estudiante = estudiantes.find(e => 
-        e.cedula.toLowerCase().trim() === busqueda.toLowerCase().trim() ||
-        e.nombre.toLowerCase().trim().includes(busqueda.toLowerCase().trim())
-      );
-
-      if (!estudiante) {
-        alert("No se encontró ningún estudiante con ese nombre o cédula.");
-        return;
-      }
-
-      const nuevaSeccion = prompt(`Estudiante: ${estudiante.nombre}\nGénero: ${estudiante.genero}\nSección actual: ${estudiante.seccion}\n\nIngrese la NUEVA sección (Ej. Primer año seccion B):`);
-      if (!nuevaSeccion) return;
-
-      estudiante.seccion = nuevaSeccion.trim();
-      guardarEstudiantes();
-      renderizarTabla(inputBuscar.value);
-      alert(`La sección de ${estudiante.nombre} fue actualizada exitosamente a: ${estudiante.seccion}`);
-    });
-  }
-});
-
-// ==========================================================================
-// 5. SELECTOR DE ASISTENCIA Y RENDERIZADO DE CELDAS CON COLORES
-// ==========================================================================
-
-function insertarSelectorAsistenciaUI() {
-  const contenedorBuscador = document.querySelector(".contenedor-buscador");
-  if (!contenedorBuscador) return;
-
-  const divSelector = document.createElement("div");
-  divSelector.className = "selector-asistencia-container";
-  divSelector.innerHTML = `
-    <label for="select-color-asistencia">🎨 Seleccione el estatus a marcar:</label>
-    <select id="select-color-asistencia">
-      <option value="verde">🟢 Asistente (Verde)</option>
-      <option value="rojo">🔴 Inasistente (Rojo)</option>
-      <option value="morado">🟣 Ausente / Permiso (Morado)</option>
-      <option value="vacio">⚪ Borrar / Sin marcar (Blanco)</option>
-    </select>
-  `;
-  contenedorBuscador.parentNode.insertBefore(divSelector, contenedorBuscador.nextSibling);
 }
 
-function renderizarTabla(filtro = "") {
-  const tbody = document.getElementById("tabla-cuerpo");
+function guardarCredenciales(credenciales) {
+  const limpio = {
+    usuario: String(credenciales.usuario || USUARIO_INICIAL).trim(),
+    password: String(credenciales.password || CLAVE_INICIAL),
+  };
+  localStorage.setItem(STORAGE_CREDENCIALES, JSON.stringify(limpio));
+  return limpio;
+}
+
+function setSesionActiva(activa) {
+  if (activa) {
+    localStorage.setItem(STORAGE_SESION, "1");
+  } else {
+    localStorage.removeItem(STORAGE_SESION);
+  }
+}
+
+function haySesionActiva() {
+  return localStorage.getItem(STORAGE_SESION) === "1";
+}
+
+function validarCredenciales(usuarioIngresado, passwordIngresada) {
+  asegurarCredencialesIniciales();
+  const guardadas = obtenerCredenciales();
+  const u1 = String(usuarioIngresado || "").trim().toLowerCase();
+  const u2 = String(guardadas.usuario || "").trim().toLowerCase();
+  return u1 === u2 && String(passwordIngresada || "") === String(guardadas.password || "");
+}
+
+function actualizarUsuarioYPassword({ nuevoUsuario, passwordActual, passwordNueva, passwordConfirmar }) {
+  asegurarCredencialesIniciales();
+  const guardadas = obtenerCredenciales();
+
+  if (!passwordActual || String(passwordActual) !== String(guardadas.password)) {
+    throw new Error("La contraseña actual es incorrecta.");
+  }
+
+  const usuarioFinal = String(nuevoUsuario || guardadas.usuario).trim();
+  if (!usuarioFinal) {
+    throw new Error("El nombre de usuario no puede estar vacío.");
+  }
+
+  let passwordFinal = guardadas.password;
+  if (passwordNueva || passwordConfirmar) {
+    if (String(passwordNueva).length < 4) {
+      throw new Error("La nueva contraseña debe tener al menos 4 caracteres.");
+    }
+    if (String(passwordNueva) !== String(passwordConfirmar)) {
+      throw new Error("La nueva contraseña y su confirmación no coinciden.");
+    }
+    passwordFinal = String(passwordNueva);
+  }
+
+  return guardarCredenciales({
+    usuario: usuarioFinal,
+    password: passwordFinal,
+  });
+}
+
+// ============================================================================
+// CAPA HTTP / FETCH CON MANEJO SEGURO DE JSON
+// ============================================================================
+async function peticionJson(url, options = {}) {
+  const headers = {
+    Accept: "application/json",
+    ...(options.body ? { "Content-Type": "application/json" } : {}),
+    ...(options.headers || {}),
+  };
+
+  const res = await fetch(url, { ...options, headers });
+  const texto = await res.text();
+  let data = {};
+
+  if (texto) {
+    try {
+      data = JSON.parse(texto);
+    } catch {
+      throw new Error(
+        `El servidor devolvió un formato no JSON (HTTP ${res.status}). Asegúrate de abrir http://localhost/asistencia/ desde XAMPP.`
+      );
+    }
+  }
+
+  if (!res.ok || data.ok === false) {
+    throw new Error(data.error || `Error en la petición (HTTP ${res.status}).`);
+  }
+
+  return data;
+}
+
+function normalizarEstudiante(est) {
+  const nombre = String(est.nombre || "").trim();
+  const apellido = String(est.apellido || "").trim();
+  const nombreCompleto =
+    est.nombre_completo ||
+    [nombre, apellido].filter((p) => p && p !== "N/D").join(" ").trim() ||
+    nombre;
+
+  const asistencias =
+    est.asistencias && typeof est.asistencias === "object" && !Array.isArray(est.asistencias)
+      ? est.asistencias
+      : {};
+
+  return {
+    ...est,
+    id: Number(est.id),
+    seccion_id: est.seccion_id != null ? Number(est.seccion_id) : null,
+    cedula: String(est.cedula || "").trim(),
+    nombre,
+    apellido,
+    nombre_completo: nombreCompleto,
+    genero: est.genero || "N/D",
+    seccion: est.seccion || est.nombre_seccion || "",
+    asistencias,
+  };
+}
+
+async function apiListarEstudiantes() {
+  const data = await peticionJson(API_ESTUDIANTES, { method: "GET" });
+  const lista = Array.isArray(data.estudiantes) ? data.estudiantes : [];
+  return lista.map(normalizarEstudiante);
+}
+
+async function apiCrearEstudiante(payload) {
+  const data = await peticionJson(API_ESTUDIANTES, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return normalizarEstudiante(data.estudiante);
+}
+
+async function apiEditarEstudiante(payload) {
+  const data = await peticionJson(API_ESTUDIANTES, {
+    method: "PUT",
+    body: JSON.stringify({ ...payload, id: Number(payload.id) }),
+  });
+  return normalizarEstudiante(data.estudiante);
+}
+
+async function apiEliminarEstudiante(id) {
+  const data = await peticionJson(API_ESTUDIANTES, {
+    method: "DELETE",
+    body: JSON.stringify({ id: Number(id) }),
+  });
+  return Number(data.id ?? id);
+}
+
+async function apiGuardarAsistencia(id, asistencias) {
+  const data = await peticionJson(API_ASISTENCIA, {
+    method: "PUT",
+    body: JSON.stringify({ id: Number(id), asistencias }),
+  });
+  return data.asistencias && typeof data.asistencias === "object" ? data.asistencias : asistencias;
+}
+
+// ============================================================================
+// UTILIDADES DE INTERFAZ Y RENDERIZADO
+// ============================================================================
+function escaparHtml(valor) {
+  return String(valor ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function sincronizarDatosUsuarioUI() {
+  const cred = obtenerCredenciales() || { usuario: USUARIO_INICIAL };
+  const labelUsuario = document.querySelector("#usuario-activo");
+  if (labelUsuario) labelUsuario.textContent = cred.usuario;
+
+  const inputPerfil = document.querySelector("#usuario-perfil");
+  if (inputPerfil && !inputPerfil.value) {
+    inputPerfil.value = cred.usuario;
+  }
+}
+
+function mostrarSistema() {
+  const loginEl = document.querySelector("#login-container");
+  const sistemaEl = document.querySelector("#sistema-container");
+  if (loginEl) loginEl.classList.add("oculto");
+  if (sistemaEl) sistemaEl.classList.remove("oculto");
+  sincronizarDatosUsuarioUI();
+}
+
+function mostrarLogin() {
+  const loginEl = document.querySelector("#login-container");
+  const sistemaEl = document.querySelector("#sistema-container");
+  if (sistemaEl) sistemaEl.classList.add("oculto");
+  if (loginEl) loginEl.classList.remove("oculto");
+
+  const uInput = document.querySelector("#login-usuario");
+  const pInput = document.querySelector("#login-password");
+  if (uInput) uInput.value = "";
+  if (pInput) pInput.value = "";
+}
+
+function actualizarOpcionesSeccion() {
+  const selectFiltro = document.querySelector("#filtro-seccion");
+  if (!selectFiltro) return;
+
+  const valorPrevio = selectFiltro.value || "todas";
+  const seccionesUnicas = [...new Set(listaEstudiantes.map((e) => e.seccion).filter(Boolean))].sort();
+
+  selectFiltro.innerHTML = `<option value="todas">Todas las secciones</option>`;
+  seccionesUnicas.forEach((sec) => {
+    const opt = document.createElement("option");
+    opt.value = sec;
+    opt.textContent = sec;
+    selectFiltro.appendChild(opt);
+  });
+
+  if ([...selectFiltro.options].some((o) => o.value === valorPrevio)) {
+    selectFiltro.value = valorPrevio;
+  }
+}
+
+function obtenerFiltrados() {
+  const texto = (document.querySelector("#buscar-estudiante")?.value || "").trim().toLowerCase();
+  const genero = document.querySelector("#filtro-genero")?.value || "todos";
+  const seccion = document.querySelector("#filtro-seccion")?.value || "todas";
+
+  return listaEstudiantes.filter((est) => {
+    const okTexto =
+      !texto ||
+      est.cedula.toLowerCase().includes(texto) ||
+      est.nombre_completo.toLowerCase().includes(texto) ||
+      est.seccion.toLowerCase().includes(texto);
+    const okGenero = genero === "todos" || est.genero === genero;
+    const okSeccion = seccion === "todas" || est.seccion === seccion;
+    return okTexto && okGenero && okSeccion;
+  });
+}
+
+function renderizarTabla(estudiantes = obtenerFiltrados()) {
+  const tbody = document.querySelector("#tabla-estudiantes tbody");
   if (!tbody) return;
+
   tbody.innerHTML = "";
-
-  const busqueda = filtro.toLowerCase().trim();
-  const estudiantesFiltrados = estudiantes.filter(est => 
-    est.nombre.toLowerCase().includes(busqueda) || 
-    est.cedula.toLowerCase().includes(busqueda)
-  );
-
-  if (estudiantesFiltrados.length === 0) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="66" class="sin-resultados">Estudiante no encontrado en el sistema.</td>`;
-    tbody.appendChild(tr);
+  if (!estudiantes.length) {
+    tbody.innerHTML = `<tr><td colspan="5">No hay estudiantes registrados.</td></tr>`;
     return;
   }
 
-  estudiantesFiltrados.forEach((est, index) => {
+  estudiantes.forEach((est) => {
     const tr = document.createElement("tr");
-
-    if (!est.asistencias) est.asistencias = {};
-
-    let casillasHTML = "";
-    for (let i = 1; i <= 60; i++) {
-      const estadoColor = est.asistencias[i] || "vacio";
-      casillasHTML += `<td class="celda-asistencia asistencia-${estadoColor}" data-estudiante-id="${est.id}" data-casilla-index="${i}" onclick="marcarAsistencia(this)"></td>`;
-    }
-
+    tr.dataset.id = est.id;
     tr.innerHTML = `
-      <td>${index + 1}</td>
-      <td>
-        <input type="text" class="input-cedula-edit" value="${est.cedula}" onchange="actualizarCedula(${est.id}, this.value)">
-      </td>
-      <td>${est.nombre}</td>
-      <td>
-        <select class="input-cedula-edit" onchange="actualizarGenero(${est.id}, this.value)">
-          <option value="Masculino" ${est.genero === 'Masculino' ? 'selected' : ''}>Masculino</option>
-          <option value="Femenino" ${est.genero === 'Femenino' ? 'selected' : ''}>Femenino</option>
-          <option value="N/D" ${!est.genero || est.genero === 'N/D' ? 'selected' : ''}>N/D</option>
-        </select>
-      </td>
-      <td>${est.seccion}</td>
-      ${casillasHTML}
-      <td class="col-acciones">
-        <button class="btn-eliminar" onclick="eliminarEstudiante(${est.id})">Eliminar</button>
+      <td>${escaparHtml(est.cedula)}</td>
+      <td>${escaparHtml(est.nombre_completo)}</td>
+      <td>${escaparHtml(est.genero)}</td>
+      <td>${escaparHtml(est.seccion)}</td>
+      <td class="no-print">
+        <button type="button" class="btn-secundario" data-accion="asistencia" data-id="${est.id}">Asistencia</button>
+        <button type="button" class="btn-primario" data-accion="editar" data-id="${est.id}">Editar</button>
+        <button type="button" class="btn-peligro" data-accion="eliminar" data-id="${est.id}">Eliminar</button>
       </td>
     `;
-
     tbody.appendChild(tr);
   });
 }
 
-window.marcarAsistencia = function(celda) {
-  const estudianteId = parseInt(celda.getAttribute("data-estudiante-id"));
-  const casillaIndex = parseInt(celda.getAttribute("data-casilla-index"));
-  
-  const selectColor = document.getElementById("select-color-asistencia");
-  const colorSeleccionado = selectColor ? selectColor.value : "verde";
+function renderizarCasillasAsistencia(estudiante, totalDias = 60) {
+  const cont = document.querySelector("#contenedor-asistencia");
+  if (!cont || !estudiante) return;
 
-  const estudiante = estudiantes.find(e => e.id === estudianteId);
-  if (!estudiante) return;
+  estudianteSeleccionadoId = Number(estudiante.id);
+  const marcas = estudiante.asistencias || {};
 
-  if (!estudiante.asistencias) {
-    estudiante.asistencias = {};
+  let html = `
+    <div class="cabecera-asistencia">
+      <strong>${escaparHtml(estudiante.nombre_completo)}</strong>
+      <span>Cédula: ${escaparHtml(estudiante.cedula)} · Sección: ${escaparHtml(estudiante.seccion)}</span>
+    </div>
+    <div class="casillas-grid">
+  `;
+
+  for (let dia = 1; dia <= totalDias; dia++) {
+    const clave = `dia_${dia}`;
+    const checked = marcas[clave] === "P" || marcas[clave] === true ? "checked" : "";
+    html += `
+      <label class="casilla-item">
+        <input
+          type="checkbox"
+          class="chk-asistencia"
+          data-estudiante-id="${estudiante.id}"
+          data-clave="${clave}"
+          ${checked}
+        />
+        <span>Día ${dia}</span>
+      </label>
+    `;
   }
 
-  if (colorSeleccionado === "vacio") {
-    delete estudiante.asistencias[casillaIndex];
-    celda.className = "celda-asistencia asistencia-vacio";
+  html += `</div>`;
+  cont.innerHTML = html;
+}
+
+// ============================================================================
+// ACCIONES DE CARGA, CRUD, ASISTENCIA, CREDENCIALES E IMPRESIÓN
+// ============================================================================
+async function cargarEstudiantes() {
+  try {
+    listaEstudiantes = await apiListarEstudiantes();
+    actualizarOpcionesSeccion();
+    renderizarTabla(obtenerFiltrados());
+
+    if (estudianteSeleccionadoId) {
+      const actual = listaEstudiantes.find((e) => Number(e.id) === Number(estudianteSeleccionadoId));
+      if (actual) renderizarCasillasAsistencia(actual);
+    }
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
+}
+
+function abrirEdicion(estudiante) {
+  estudianteEnEdicionId = Number(estudiante.id);
+  const panelEditar = document.querySelector("#panel-editar-estudiante");
+  if (panelEditar) panelEditar.classList.remove("oculto");
+
+  document.querySelector("#edit-id").value = estudiante.id;
+  document.querySelector("#edit-cedula").value = estudiante.cedula;
+  document.querySelector("#edit-nombre-completo").value = estudiante.nombre_completo;
+  document.querySelector("#edit-genero").value = estudiante.genero || "N/D";
+  document.querySelector("#edit-seccion").value = estudiante.seccion;
+  panelEditar?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function cerrarEdicion() {
+  estudianteEnEdicionId = null;
+  const formEditar = document.querySelector("#form-editar-estudiante");
+  const panelEditar = document.querySelector("#panel-editar-estudiante");
+  formEditar?.reset();
+  panelEditar?.classList.add("oculto");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  asegurarCredencialesIniciales();
+  sincronizarDatosUsuarioUI();
+
+  // Login
+  document.querySelector("#form-login")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const usuario = document.querySelector("#login-usuario")?.value || "";
+    const password = document.querySelector("#login-password")?.value || "";
+
+    if (!validarCredenciales(usuario, password)) {
+      alert("Usuario o contraseña incorrectos.");
+      return;
+    }
+
+    setSesionActiva(true);
+    mostrarSistema();
+    await cargarEstudiantes();
+  });
+
+  // Cerrar sesión
+  document.querySelector("#btn-cerrar-sesion")?.addEventListener("click", () => {
+    setSesionActiva(false);
+    mostrarLogin();
+  });
+
+  // Abrir / cerrar panel de cambio de contraseña y usuario
+  document.querySelector("#btn-cambiar-password")?.addEventListener("click", () => {
+    sincronizarDatosUsuarioUI();
+    document.querySelector("#panel-cambiar-password")?.classList.toggle("oculto");
+  });
+
+  document.querySelector("#btn-cancelar-clave")?.addEventListener("click", () => {
+    const formClave = document.querySelector("#form-cambiar-password");
+    formClave?.reset();
+    document.querySelector("#panel-cambiar-password")?.classList.add("oculto");
+  });
+
+  // Guardar cambio de contraseña / usuario
+  document.querySelector("#form-cambiar-password")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    try {
+      const actualizado = actualizarUsuarioYPassword({
+        nuevoUsuario: document.querySelector("#usuario-perfil")?.value,
+        passwordActual: document.querySelector("#password-actual")?.value,
+        passwordNueva: document.querySelector("#password-nueva")?.value,
+        passwordConfirmar: document.querySelector("#password-confirmar")?.value,
+      });
+
+      sincronizarDatosUsuarioUI();
+      e.currentTarget.reset();
+      document.querySelector("#panel-cambiar-password")?.classList.add("oculto");
+      alert(`Credenciales guardadas para el usuario "${actualizado.usuario}".`);
+    } catch (error) {
+      alert(error.message);
+    }
+  });
+
+  // Imprimir
+  document.querySelector("#btn-imprimir")?.addEventListener("click", () => {
+    window.print();
+  });
+
+  // Crear estudiante
+  document.querySelector("#form-agregar-estudiante")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const payload = {
+      cedula: document.querySelector("#cedula")?.value.trim(),
+      nombre_completo: document.querySelector("#nombre-completo")?.value.trim(),
+      genero: document.querySelector("#genero")?.value || "N/D",
+      seccion: document.querySelector("#seccion")?.value.trim(),
+    };
+
+    const btn = form.querySelector("button[type='submit']");
+    if (btn) btn.disabled = true;
+
+    try {
+      const creado = await apiCrearEstudiante(payload);
+      listaEstudiantes.push(creado);
+      actualizarOpcionesSeccion();
+      renderizarTabla(obtenerFiltrados());
+      form.reset();
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  });
+
+  // Editar estudiante
+  document.querySelector("#btn-cancelar-edicion")?.addEventListener("click", cerrarEdicion);
+
+  document.querySelector("#form-editar-estudiante")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const id = Number(estudianteEnEdicionId || document.querySelector("#edit-id")?.value || 0);
+    if (!id) return;
+
+    const payload = {
+      id,
+      cedula: document.querySelector("#edit-cedula")?.value.trim(),
+      nombre_completo: document.querySelector("#edit-nombre-completo")?.value.trim(),
+      genero: document.querySelector("#edit-genero")?.value || "N/D",
+      seccion: document.querySelector("#edit-seccion")?.value.trim(),
+    };
+
+    const btn = form.querySelector("button[type='submit']");
+    if (btn) btn.disabled = true;
+
+    try {
+      const actualizado = await apiEditarEstudiante(payload);
+      listaEstudiantes = listaEstudiantes.map((est) =>
+        Number(est.id) === Number(actualizado.id) ? { ...est, ...actualizado } : est
+      );
+      actualizarOpcionesSeccion();
+      renderizarTabla(obtenerFiltrados());
+      cerrarEdicion();
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  });
+
+  // Botones en cada fila de la tabla
+  document.querySelector("#tabla-estudiantes tbody")?.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button[data-accion]");
+    if (!btn) return;
+
+    const id = Number(btn.dataset.id);
+    const est = listaEstudiantes.find((item) => Number(item.id) === id);
+    if (!est) return;
+
+    const accion = btn.dataset.accion;
+    if (accion === "editar") {
+      abrirEdicion(est);
+    } else if (accion === "asistencia") {
+      renderizarCasillasAsistencia(est);
+    } else if (accion === "eliminar") {
+      if (!confirm(`¿Seguro que deseas eliminar a ${est.nombre_completo}?`)) return;
+      btn.disabled = true;
+      try {
+        const eliminadoId = await apiEliminarEstudiante(id);
+        listaEstudiantes = listaEstudiantes.filter((item) => Number(item.id) !== Number(eliminadoId));
+        if (Number(estudianteSeleccionadoId) === Number(eliminadoId)) {
+          estudianteSeleccionadoId = null;
+          document.querySelector("#contenedor-asistencia").innerHTML =
+            `<p class="texto-ayuda">Selecciona el botón <strong>Asistencia</strong> en un estudiante para marcar sus días.</p>`;
+        }
+        actualizarOpcionesSeccion();
+        renderizarTabla(obtenerFiltrados());
+      } catch (error) {
+        alert(error.message);
+        btn.disabled = false;
+      }
+    }
+  });
+
+  // Casillas de asistencia (60 días)
+  document.querySelector("#contenedor-asistencia")?.addEventListener("change", async (e) => {
+    const chk = e.target.closest("input.chk-asistencia");
+    if (!chk) return;
+
+    const id = Number(chk.dataset.estudianteId);
+    const clave = chk.dataset.clave;
+    const est = listaEstudiantes.find((item) => Number(item.id) === id);
+    if (!est || !clave) return;
+
+    const nuevasAsistencias = { ...(est.asistencias || {}) };
+    if (chk.checked) {
+      nuevasAsistencias[clave] = "P";
+    } else {
+      delete nuevasAsistencias[clave];
+    }
+
+    chk.disabled = true;
+    try {
+      const guardadas = await apiGuardarAsistencia(id, nuevasAsistencias);
+      est.asistencias = guardadas;
+    } catch (error) {
+      chk.checked = !chk.checked;
+      alert(error.message);
+    } finally {
+      chk.disabled = false;
+    }
+  });
+
+  // Filtros de búsqueda
+  ["#buscar-estudiante", "#filtro-genero", "#filtro-seccion"].forEach((sel) => {
+    const el = document.querySelector(sel);
+    el?.addEventListener("input", () => renderizarTabla(obtenerFiltrados()));
+    el?.addEventListener("change", () => renderizarTabla(obtenerFiltrados()));
+  });
+
+  // Estado inicial al cargar
+  if (haySesionActiva()) {
+    mostrarSistema();
+    cargarEstudiantes();
   } else {
-    estudiante.asistencias[casillaIndex] = colorSeleccionado;
-    celda.className = `celda-asistencia asistencia-${colorSeleccionado}`;
+    mostrarLogin();
   }
-  guardarEstudiantes();
-};
-
-window.actualizarCedula = function(id, nuevaCedula) {
-  const estudiante = estudiantes.find(e => e.id === id);
-  if (estudiante) {
-    estudiante.cedula = nuevaCedula.trim();
-    guardarEstudiantes();
-  }
-};
-
-window.actualizarGenero = function(id, nuevoGenero) {
-  const estudiante = estudiantes.find(e => e.id === id);
-  if (estudiante) {
-    estudiante.genero = nuevoGenero;
-    guardarEstudiantes();
-  }
-};
-
-window.eliminarEstudiante = function(id) {
-  if (confirm("¿Desea eliminar a este estudiante del listado oficial?")) {
-    estudiantes = estudiantes.filter(e => e.id !== id);
-    guardarEstudiantes();
-    renderizarTabla(document.getElementById("input-buscar").value);
-  }
-};
+});
