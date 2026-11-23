@@ -479,3 +479,112 @@ th {
     border-color: #6b21a8 !important;
   }
 }
+
+/*Esta es la parte del colegio para colocar el logo */
+
+/* PANTALLA DE LOGIN ESTILO REFERENCIA */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: #1c478a;
+}
+
+.login-card {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  padding: 28px 30px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.login-encabezado {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.login-escudo {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.login-titulos h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: left;
+  margin: 0 0 3px 0;
+}
+
+.login-titulos .subtitulo {
+  font-size: 0.85rem;
+  color: #64748b;
+  text-align: left;
+  margin: 0;
+}
+
+.login-card .campo {
+  margin-bottom: 14px;
+}
+
+.login-card .campo label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.login-card .campo input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  font-size: 0.92rem;
+  color: #1e293b;
+  background-color: #ffffff;
+}
+
+.btn-login-azul {
+  width: 100%;
+  padding: 10px 14px;
+  margin-top: 4px;
+  background-color: #1c478a;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-login-azul:hover {
+  background-color: #15376b;
+}
+
+.login-pie-enlaces {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #64748b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.login-pie-enlaces a {
+  color: #1e293b;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-pie-enlaces a:hover {
+  text-decoration: underline;
+}
