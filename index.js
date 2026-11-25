@@ -206,7 +206,9 @@ async function manejarClicCasillaConAlert(botonCasilla) {
 
   if (texto === "limpiar" || texto === "borrar" || texto === "") {
     delete nuevasAsistencias[clave];
-  } else {
+  } 
+  
+  else {
     const colorElegido = normalizarColorAsistencia(texto);
     if (!colorElegido) {
       alert("Color no válido. Escribe exactamente: verde, rojo o morado (o 'limpiar').");

@@ -10,8 +10,13 @@
   <!-- PANTALLA DE INGRESO -->
   <section id="login-container" class="login-container">
     <div class="login-card">
-      <h1>Colegio Simón Bolívar</h1>
-      <p class="subtitulo">Ingreso al Sistema de Asistencia</p>
+      <div class="login-encabezado">
+        <div class="login-titulos">
+          <img src="./Imagenes/logo del colegio simon bolivar actual.jpeg" alt="Logo Colegio Simón Bolívar" class="login-escudo"/>
+          <h1>Colegio Simón Bolívar</h1>
+          <p class="subtitulo">Ingreso al Sistema de Asistencia</p>
+        </div>
+      </div>
 
       <form id="form-login" autocomplete="off">
         <div class="campo">
@@ -38,7 +43,13 @@
           />
         </div>
 
-        <button type="submit" class="btn-primario btn-bloque">Entrar al Sistema</button>
+        <button type="submit" class="btn-login-azul">Entrar al Sistema</button>
+
+        <div class="login-pie-enlaces">
+          <a href="#">Registrar Nuevo Docente</a>
+          <span>|</span>
+          <a href="#">¿Olvidó su contraseña?</a>
+        </div>
       </form>
     </div>
   </section>
@@ -193,9 +204,9 @@
       </div>
     </section>
 
-    <!-- MATRIZ DE 60 CASILLAS DE ASISTENCIA -->
+    <!-- MATRIZ DE CASILLAS DE ASISTENCIA (LUNES A VIERNES) -->
     <section id="panel-asistencia" class="panel tarjeta">
-      <h3>Planilla de Asistencia (60 Días)</h3>
+      <h3>Planilla de Asistencia Semanal</h3>
       <div id="contenedor-asistencia">
         <p class="texto-ayuda">Selecciona el botón <strong>Asistencia</strong> en un estudiante para marcar sus días.</p>
       </div>
