@@ -10,6 +10,8 @@ const STORAGE_SESION = "csb_sesion_activa_v1";
 const USUARIO_INICIAL = "control de estudio";
 const CLAVE_INICIAL = "ColegioSimonBolivar";
 
+const DIAS_SEMANA = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+
 let listaEstudiantes = [];
 let estudianteEnEdicionId = null;
 let estudianteSeleccionadoId = null;
@@ -101,6 +103,9 @@ function actualizarUsuarioYPassword({ nuevoUsuario, passwordActual, passwordNuev
   });
 }
 
+// ============================================================================
+// SECCIONES DE COLORES Y ASISTENCIA (VERDE -> ROJO -> MORADO -> BLANCO)
+// ============================================================================
 const COLORES_SECCION = [
   "seccion-color-0",
   "seccion-color-1",
@@ -127,18 +132,32 @@ function normalizarColorAsistencia(valor) {
   return "";
 }
 
-function obtenerClaseEstadoAsistencia(valor) {
-  const color = normalizarColorAsistencia(valor);
-  if (color === "verde") return "estado-verde";
-  if (color === "rojo") return "estado-rojo";
-  if (color === "morado") return "estado-morado";
+function obtenerSiguienteEstado(estadoActual) {
+  if (estadoActual === "") return "verde";
+  if (estadoActual === "verde") return "rojo";
+  if (estadoActual === "rojo") return "morado";
   return "";
 }
 
-function renderizarCasillasAsistenciaColores(estudiante, totalDias = 60) {
+function obtenerClaseEstado(estado) {
+  if (estado === "verde") return "estado-verde";
+  if (estado === "rojo") return "estado-rojo";
+  if (estado === "morado") return "estado-morado";
+  return "";
+}
+
+function obtenerTextoEstado(estado) {
+  if (estado === "verde") return "ASISTENTE";
+  if (estado === "rojo") return "INASISTENTE";
+  if (estado === "morado") return "AUSENTE";
+  return "-";
+}
+
+function renderizarCasillasAsistencia(estudiante, semanas = 4) {
   const cont = document.querySelector("#contenedor-asistencia");
   if (!cont || !estudiante) return;
 
+  estudianteSeleccionadoId = Number(estudiante.id);
   const marcas = estudiante.asistencias || {};
   const claseSec = obtenerClaseColorSeccion(estudiante.seccion);
 
@@ -148,92 +167,41 @@ function renderizarCasillasAsistenciaColores(estudiante, totalDias = 60) {
       <span>Cédula: ${escaparHtml(estudiante.cedula)}</span>
       <span class="seccion-badge ${claseSec}">${escaparHtml(estudiante.seccion)}</span>
     </div>
-    <p class="texto-ayuda">
-      Significado: <strong>Verde</strong> = Asistente · <strong>Rojo</strong> = Inasistente · <strong>Morado</strong> = Ausente
-    </p>
+    <div class="leyenda-colores">
+      <span class="item-leyenda"><span class="muestra-color muestra-verde"></span> <strong>Verde:</strong> Asistente</span>
+      <span class="item-leyenda"><span class="muestra-color muestra-rojo"></span> <strong>Rojo:</strong> Inasistente</span>
+      <span class="item-leyenda"><span class="muestra-color muestra-morado"></span> <strong>Morado:</strong> Ausente</span>
+      <span class="item-leyenda"><span class="muestra-color muestra-blanco"></span> <strong>Blanco:</strong> Sin registro</span>
+    </div>
     <div class="casillas-grid">
   `;
 
-  for (let dia = 1; dia <= totalDias; dia++) {
-    const clave = `dia_${dia}`;
-    const colorActual = normalizarColorAsistencia(marcas[clave]);
-    const claseEstado = obtenerClaseEstadoAsistencia(colorActual);
+  let contadorDiaGlobal = 1;
+  for (let s = 1; s <= semanas; s++) {
+    DIAS_SEMANA.forEach((diaNombre) => {
+      const clave = `dia_${contadorDiaGlobal}`;
+      const colorActual = normalizarColorAsistencia(marcas[clave]);
+      const claseColor = obtenerClaseEstado(colorActual);
 
-    html += `
-      <button
-        type="button"
-        class="casilla-dia ${claseEstado}"
-        data-estudiante-id="${estudiante.id}"
-        data-clave="${clave}"
-        data-dia="${dia}"
-        data-color="${colorActual}"
-      >
-        <span>Día ${dia}</span>
-        <small>${colorActual ? colorActual.toUpperCase() : "-"}</small>
-      </button>
-    `;
+      html += `
+        <button
+          type="button"
+          class="casilla-dia ${claseColor}"
+          data-estudiante-id="${estudiante.id}"
+          data-clave="${clave}"
+          data-color="${colorActual}"
+        >
+          <span>${diaNombre}</span>
+          <small>${obtenerTextoEstado(colorActual)}</small>
+        </button>
+      `;
+      contadorDiaGlobal++;
+    });
   }
 
   html += `</div>`;
   cont.innerHTML = html;
 }
-
-async function manejarClicCasillaConAlert(botonCasilla) {
-  const id = Number(botonCasilla.dataset.estudianteId);
-  const clave = botonCasilla.dataset.clave;
-  const dia = botonCasilla.dataset.dia;
-  const est = listaEstudiantes.find((item) => Number(item.id) === id);
-  if (!est || !clave) return;
-
-  alert(
-    `Día ${dia} — ${est.nombre_completo}\n\n` +
-      "Escoge el color según el significado:\n" +
-      "• VERDE = Asistente\n" +
-      "• ROJO = Inasistente\n" +
-      "• MORADO = Ausente\n\n" +
-      "A continuación escribe el color (verde, rojo o morado). Si escribes 'limpiar', se borra el día."
-  );
-
-  const respuesta = prompt(
-    `Escribe el color para el Día ${dia} (verde = Asistente, rojo = Inasistente, morado = Ausente):`,
-    botonCasilla.dataset.color || "verde"
-  );
-
-  if (respuesta === null) return;
-
-  const texto = respuesta.trim().toLowerCase();
-  const nuevasAsistencias = { ...(est.asistencias || {}) };
-
-  if (texto === "limpiar" || texto === "borrar" || texto === "") {
-    delete nuevasAsistencias[clave];
-  } 
-  
-  else {
-    const colorElegido = normalizarColorAsistencia(texto);
-    if (!colorElegido) {
-      alert("Color no válido. Escribe exactamente: verde, rojo o morado (o 'limpiar').");
-      return;
-    }
-    nuevasAsistencias[clave] = colorElegido;
-  }
-
-  botonCasilla.disabled = true;
-  try {
-    const guardadas = await apiGuardarAsistencia(id, nuevasAsistencias);
-    est.asistencias = guardadas;
-    renderizarCasillasAsistenciaColores(est);
-  } catch (error) {
-    alert(error.message);
-  } finally {
-    botonCasilla.disabled = false;
-  }
-}
-
-document.querySelector("#contenedor-asistencia")?.addEventListener("click", async (e) => {
-  const btnCasilla = e.target.closest("button.casilla-dia");
-  if (!btnCasilla) return;
-  await manejarClicCasillaConAlert(btnCasilla);
-});
 
 // ============================================================================
 // CAPA HTTP / FETCH CON MANEJO SEGURO DE JSON
@@ -287,7 +255,7 @@ function normalizarEstudiante(est) {
     nombre,
     apellido,
     nombre_completo: nombreCompleto,
-    genero: est.genero || "N/D",
+    sexo: est.sexo || "N/D",
     seccion: est.seccion || est.nombre_seccion || "",
     asistencias,
   };
@@ -396,7 +364,7 @@ function actualizarOpcionesSeccion() {
 
 function obtenerFiltrados() {
   const texto = (document.querySelector("#buscar-estudiante")?.value || "").trim().toLowerCase();
-  const genero = document.querySelector("#filtro-genero")?.value || "todos";
+  const sexo = document.querySelector("#filtro-sexo")?.value || "todos";
   const seccion = document.querySelector("#filtro-seccion")?.value || "todas";
 
   return listaEstudiantes.filter((est) => {
@@ -405,9 +373,9 @@ function obtenerFiltrados() {
       est.cedula.toLowerCase().includes(texto) ||
       est.nombre_completo.toLowerCase().includes(texto) ||
       est.seccion.toLowerCase().includes(texto);
-    const okGenero = genero === "todos" || est.genero === genero;
+    const okSexo = sexo === "todos" || est.sexo === sexo;
     const okSeccion = seccion === "todas" || est.seccion === seccion;
-    return okTexto && okGenero && okSeccion;
+    return okTexto && okSexo && okSeccion;
   });
 }
 
@@ -422,13 +390,14 @@ function renderizarTabla(estudiantes = obtenerFiltrados()) {
   }
 
   estudiantes.forEach((est) => {
+    const claseSec = obtenerClaseColorSeccion(est.seccion);
     const tr = document.createElement("tr");
     tr.dataset.id = est.id;
     tr.innerHTML = `
       <td>${escaparHtml(est.cedula)}</td>
       <td>${escaparHtml(est.nombre_completo)}</td>
-      <td>${escaparHtml(est.genero)}</td>
-      <td>${escaparHtml(est.seccion)}</td>
+      <td>${escaparHtml(est.sexo)}</td>
+      <td><span class="seccion-badge ${claseSec}">${escaparHtml(est.seccion)}</span></td>
       <td class="no-print">
         <button type="button" class="btn-secundario" data-accion="asistencia" data-id="${est.id}">Asistencia</button>
         <button type="button" class="btn-primario" data-accion="editar" data-id="${est.id}">Editar</button>
@@ -437,42 +406,6 @@ function renderizarTabla(estudiantes = obtenerFiltrados()) {
     `;
     tbody.appendChild(tr);
   });
-}
-
-function renderizarCasillasAsistencia(estudiante, totalDias = 60) {
-  const cont = document.querySelector("#contenedor-asistencia");
-  if (!cont || !estudiante) return;
-
-  estudianteSeleccionadoId = Number(estudiante.id);
-  const marcas = estudiante.asistencias || {};
-
-  let html = `
-    <div class="cabecera-asistencia">
-      <strong>${escaparHtml(estudiante.nombre_completo)}</strong>
-      <span>Cédula: ${escaparHtml(estudiante.cedula)} · Sección: ${escaparHtml(estudiante.seccion)}</span>
-    </div>
-    <div class="casillas-grid">
-  `;
-
-  for (let dia = 1; dia <= totalDias; dia++) {
-    const clave = `dia_${dia}`;
-    const checked = marcas[clave] === "P" || marcas[clave] === true ? "checked" : "";
-    html += `
-      <label class="casilla-item">
-        <input
-          type="checkbox"
-          class="chk-asistencia"
-          data-estudiante-id="${estudiante.id}"
-          data-clave="${clave}"
-          ${checked}
-        />
-        <span>Día ${dia}</span>
-      </label>
-    `;
-  }
-
-  html += `</div>`;
-  cont.innerHTML = html;
 }
 
 // ============================================================================
@@ -502,7 +435,7 @@ function abrirEdicion(estudiante) {
   document.querySelector("#edit-id").value = estudiante.id;
   document.querySelector("#edit-cedula").value = estudiante.cedula;
   document.querySelector("#edit-nombre-completo").value = estudiante.nombre_completo;
-  document.querySelector("#edit-genero").value = estudiante.genero || "N/D";
+  document.querySelector("#edit-sexo").value = estudiante.sexo || "N/D";
   document.querySelector("#edit-seccion").value = estudiante.seccion;
   panelEditar?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
@@ -585,7 +518,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const payload = {
       cedula: document.querySelector("#cedula")?.value.trim(),
       nombre_completo: document.querySelector("#nombre-completo")?.value.trim(),
-      genero: document.querySelector("#genero")?.value || "N/D",
+      sexo: document.querySelector("#sexo")?.value || "N/D",
       seccion: document.querySelector("#seccion")?.value.trim(),
     };
 
@@ -618,7 +551,7 @@ document.addEventListener("DOMContentLoaded", () => {
       id,
       cedula: document.querySelector("#edit-cedula")?.value.trim(),
       nombre_completo: document.querySelector("#edit-nombre-completo")?.value.trim(),
-      genero: document.querySelector("#edit-genero")?.value || "N/D",
+      sexo: document.querySelector("#edit-sexo")?.value || "N/D",
       seccion: document.querySelector("#edit-seccion")?.value.trim(),
     };
 
@@ -674,37 +607,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Casillas de asistencia (60 días)
-  document.querySelector("#contenedor-asistencia")?.addEventListener("change", async (e) => {
-    const chk = e.target.closest("input.chk-asistencia");
-    if (!chk) return;
+  // Clic directo en las casillas para rotar colores (Verde -> Rojo -> Morado -> Blanco)
+  document.querySelector("#contenedor-asistencia")?.addEventListener("click", async (e) => {
+    const btnCasilla = e.target.closest("button.casilla-dia");
+    if (!btnCasilla) return;
 
-    const id = Number(chk.dataset.estudianteId);
-    const clave = chk.dataset.clave;
+    const id = Number(btnCasilla.dataset.estudianteId);
+    const clave = btnCasilla.dataset.clave;
     const est = listaEstudiantes.find((item) => Number(item.id) === id);
     if (!est || !clave) return;
 
+    const estadoActual = normalizarColorAsistencia(btnCasilla.dataset.color);
+    const nuevoEstado = obtenerSiguienteEstado(estadoActual);
+
     const nuevasAsistencias = { ...(est.asistencias || {}) };
-    if (chk.checked) {
-      nuevasAsistencias[clave] = "P";
-    } else {
+
+    if (nuevoEstado === "") {
       delete nuevasAsistencias[clave];
+    } else {
+      nuevasAsistencias[clave] = nuevoEstado;
     }
 
-    chk.disabled = true;
+    btnCasilla.disabled = true;
     try {
       const guardadas = await apiGuardarAsistencia(id, nuevasAsistencias);
       est.asistencias = guardadas;
+      renderizarCasillasAsistencia(est);
     } catch (error) {
-      chk.checked = !chk.checked;
       alert(error.message);
     } finally {
-      chk.disabled = false;
+      btnCasilla.disabled = false;
     }
   });
 
   // Filtros de búsqueda
-  ["#buscar-estudiante", "#filtro-genero", "#filtro-seccion"].forEach((sel) => {
+  ["#buscar-estudiante", "#filtro-sexo", "#filtro-seccion"].forEach((sel) => {
     const el = document.querySelector(sel);
     el?.addEventListener("input", () => renderizarTabla(obtenerFiltrados()));
     el?.addEventListener("change", () => renderizarTabla(obtenerFiltrados()));

@@ -236,7 +236,7 @@ button:disabled {
 
 /*Esta es la parte de los botones de acciones de cada estudiante
   para eliminar, editar el nombre, apellido, cedula, seccion
-  y genero de cada estudiante en donde dice acciones*/
+  y sexo de cada estudiante en donde dice acciones*/
 
 .btn-primario {
   background: var(--primario);
