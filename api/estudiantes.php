@@ -45,7 +45,7 @@ function normalizarSexo(array $input): string {
     return in_array($valor, ['Masculino', 'Femenino', 'N/D'], true) ? $valor : 'N/D';
 }
 
-function decodificarAsistencias($rawAsistencias): array {
+function decodificarAsistencias(string|array|null $rawAsistencias): array {
     if (is_array($rawAsistencias)) {
         return $rawAsistencias;
     }
